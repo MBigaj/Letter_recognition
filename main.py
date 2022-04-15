@@ -2,66 +2,58 @@ import sys
 import numpy
 import numpy as np
 from PIL import Image, ImageOps
+import os
 
-from plotting_func import plot_image, plot_two_images
+from plotting_func import plot_all, plot_image, plot_two_images
 from convolution_func import tanh, sigmoid, relu, convolve, calc_target_size
 from pooling_func import return_pools, max_pooling
+from CNN import CNN
+
+
+def load_images(folder):
+    images = []
+    for filename in os.listdir(folder):
+        img = Image.open(f'{folder}/{filename}')
+        img = ImageOps.grayscale(img)
+        img = img.resize(size=(28, 28))
+        img = np.array(img)
+        img = img.astype(float)
+        images.append(img)
+    return images
+
 
 # PRESET FILTERS
 
-sharpen = np.array([
-    [0, -1, 0],
-    [-1, 5, -1],
-    [0, -1, 0]
-])
+# sharpen = np.array([
+#     [0, -1, 0],
+#     [-1, 5, -1],
+#     [0, -1, 0]
+# ])
+#
+# blur = np.array([
+#     [0.0625, 0.125, 0.0625],
+#     [0.125,  0.25,  0.125],
+#     [0.0625, 0.125, 0.0625]
+# ])
+#
+# outline = np.array([
+#     [-1, -1, -1],
+#     [-1,  8, -1],
+#     [-1, -1, -1]
+# ])
 
-blur = np.array([
-    [0.0625, 0.125, 0.0625],
-    [0.125,  0.25,  0.125],
-    [0.0625, 0.125, 0.0625]
-])
-
-outline = np.array([
-    [-1, -1, -1],
-    [-1,  8, -1],
-    [-1, -1, -1]
-])
-
-weights = np.random.rand(3, 3)
-
-# kernel = filter etc.
-
-# CONVOLUTION LAYER
-
-img = Image.open('Training_Images/nine.jpg')
+# CREATE A FUNCTION TO DO ALL OF THIS SEPERATELY
+img = Image.open('Training_Images/nine_6.jpg')
 img = ImageOps.grayscale(img)
-img = img.resize(size=(32, 32))
+img = img.resize(size=(28, 28))
 img = np.array(img)
 img = img.astype(float)
 
-# POOLING LAYER
+kernel = 3
+stride = 2
 
-# i = ROWS
-# j = COLUMNS
-# kernel_size = 3
-# pool_size = 3 ... 3x3
-# stride = 2, number of steps!!!
+test = CNN(kernel, stride, 0.1)
+prediction = test.predict(img)
+plot_all(prediction)
 
-kernel_size = 2
-pool_size = 2 # 3 X 3
-stride = 1 # HOW MANY STEPS BETWEEN POOLS
-
-img = convolve(img, outline, outline.shape[0])
-img = relu(img)
-
-pools = return_pools(img, pool_size, stride)
-pooled_img = max_pooling(pools)
-# plot_image(pooled_img)
-
-conv_2 = convolve(pooled_img, weights, weights.shape[0])
-pooled = max_pooling(return_pools(conv_2, pool_size, stride))
-
-# pooled = tanh(pooled)
-pooled = relu(pooled)
-
-plot_image(pooled)
+images = load_images('Training_Images')

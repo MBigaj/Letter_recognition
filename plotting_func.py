@@ -2,6 +2,15 @@ import matplotlib.pyplot as plt
 
 # IMAGE PLOTTING FUNCTIONS FOR CLARITY
 
+def plot_all(list_of_img):
+    fig = plt.figure(figsize=(8, 8))
+    for i in range(len(list_of_img)):
+        sub = fig.add_subplot(len(list_of_img), 1, i + 1)
+        sub.imshow(list_of_img[i], interpolation='nearest')
+        plt.imshow(list_of_img[i], cmap='gray')
+    plt.show()
+
+
 def plot_image(img):
     plt.figure(figsize=(6, 6))
     plt.imshow(img, cmap='gray')

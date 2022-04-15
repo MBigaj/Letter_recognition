@@ -21,7 +21,7 @@ def max_pooling(pools: np.array):
 def return_pools(img, pool_size, stride):
     all_pools = []
     for i in np.arange(img.shape[0], step=stride):
-        for j in np.arange(img.shape[1], step=stride):
+        for j in np.arange(img.shape[0], step=stride):
             single_pool = img[i:i + pool_size, j:j + pool_size]
             if single_pool.shape == (pool_size, pool_size):
                 all_pools.append(single_pool)

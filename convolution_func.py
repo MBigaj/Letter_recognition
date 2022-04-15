@@ -1,7 +1,15 @@
 import numpy as np
 
 
-def dtahn(img):
+def mse(target, prediction):
+    return np.mean(np.power(target - prediction, 2))
+
+
+def d_mse(target, prediction):
+    return 2 * (prediction - target) / target.size
+
+
+def d_tahn(img):
     new_img = np.empty(shape=img.shape)
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
