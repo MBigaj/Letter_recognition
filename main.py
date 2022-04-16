@@ -42,7 +42,6 @@ def load_images(folder):
 #     [-1, -1, -1]
 # ])
 
-# CREATE A FUNCTION TO DO ALL OF THIS SEPERATELY
 img = Image.open('Training_Images/nine_6.jpg')
 img = ImageOps.grayscale(img)
 img = img.resize(size=(28, 28))
@@ -52,8 +51,12 @@ img = img.astype(float)
 kernel = 3
 stride = 2
 
-test = CNN(kernel, stride, 0.1)
-prediction = test.predict(img)
+network = CNN(kernel, stride, 0.1)
+prediction = network.predict(img)
+
+# images = load_images('Training_Images')
+
+print(prediction)
 plot_all(prediction)
 
-images = load_images('Training_Images')
+# network.train(images, 9)

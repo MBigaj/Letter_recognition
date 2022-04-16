@@ -4,12 +4,6 @@ from plotting_func import plot_image, plot_all
 
 class CNN:
     def __init__(self, filters_size, stride, learning_rate):
-        self.outline = np.array([
-            [-1, -1, -1],
-            [2, 2, 2],
-            [-1, -1, -1]
-        ])
-
         self.kernel_a = np.array([
             [-1, 2, -1],
             [-1,  2, -1],
@@ -39,6 +33,22 @@ class CNN:
         self.weights = np.random.rand(3, 3)
         self.bias = np.random.rand()
         self.learning_rate = learning_rate
+        self.templates = [
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [1, 1, 1, 0]
+        ]
+
+    def sigmoid(self, input):
+        all_images = []
+        for img in input:
+            img = img.copy()
+            for i in range(img.shape[0]):
+                for j in range(img.shape[0]):
+                    img[i, j] = 1 / (1 + np.exp(-img[i, j]))
+            all_images.append(img)
+        return all_images
 
     def relu(self, input):
         all_elements = []
@@ -48,14 +58,14 @@ class CNN:
             all_elements.append(el)
         return all_elements
 
-    def relu_deriv(self, input):
-        all_elements = []
-        for element in input:
-            element[element <= 0] = 0
-            element[element > 0] = 1
-            all_elements.append(element)
-        return all_elements
-
+    # def relu_deriv(self, input):
+    #     all_elements = []
+    #     for element in input:
+    #         element[element <= 0] = 0
+    #         element[element > 0] = 1
+    #         all_elements.append(element)
+    #     return all_elements
+    #
     # def tanh(self, input):
     #     all_elements = []
     #     for element in input:
@@ -112,9 +122,12 @@ class CNN:
         return np.array(new_outputs)
 
     def predict(self, input):
-        output = self.convolution([input], [self.kernel_a, self.kernel_b, self.kernel_c, self.kernel_d, self.weights])
+        output = self.convolution([input], [self.kernel_a, self.kernel_b, self.kernel_c, self.kernel_d])
         output = self.max_pooling(self.return_pools(output))
         output = self.convolution(output, [self.weights])
         output = self.max_pooling(self.return_pools(output))
-        output = self.relu(output)
+        output = self.sigmoid(output)
         return output
+
+    def train(self, dataset, digit):
+        pass
