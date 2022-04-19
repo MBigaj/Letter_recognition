@@ -1,54 +1,74 @@
 import numpy as np
 from plotting_func import plot_image, plot_all
+from Base_class import Network
+from FCC_layer import FCC
+
 # Convolutional Neural Network structure
 
-class CNN:
-    def __init__(self, filters_size, stride, learning_rate):
-        self.kernel_a = np.array([
-            [-1, 2, -1],
-            [-1,  2, -1],
-            [-1, 2, -1]
-        ])
+class CNN(Network):
+    def __init__(self):
+        pass
+        # self.templates = np.array([
+        #     [[1, 1, 1, 1],
+        #     [1, -1, -1, 1],
+        #     [1, -1, -1, 1],
+        #     [1, 1, 1, 1]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0],
+        #      [1, 1, 1, 0]],
+        #
+        #     [[1, 1, 1, -1],
+        #      [1, 1, 1, -1],
+        #      [-1, -1, 1, -1],
+        #      [1, 1, 1, -1]],
+        # ])
 
-        self.kernel_b = np.array([
-            [-1, -1, 2],
-            [-1,  2, -1],
-            [2, -1, -1]
-        ])
-
-        self.kernel_c = np.array([
-            [2, -1, -1],
-            [-1,  2, -1],
-            [-1, -1, 2]
-        ])
-
-        self.kernel_d = np.array([
-            [-1, -1, -1],
-            [-1,  8, -1],
-            [-1, -1, -1]
-        ])
-
-        self.filters_size = filters_size
-        self.stride = stride
-        self.weights = np.random.rand(3, 3)
-        self.bias = np.random.rand()
-        self.learning_rate = learning_rate
-        self.templates = [
-            [1, 1, 1, 0],
-            [1, 1, 1, 0],
-            [1, 1, 1, 0],
-            [1, 1, 1, 0]
-        ]
-
-    def sigmoid(self, input):
-        all_images = []
-        for img in input:
-            img = img.copy()
-            for i in range(img.shape[0]):
-                for j in range(img.shape[0]):
-                    img[i, j] = 1 / (1 + np.exp(-img[i, j]))
-            all_images.append(img)
-        return all_images
+    # def sigmoid(self, input):
+    #     all_images = []
+    #     for img in input:
+    #         img = img.copy()
+    #         for i in range(img.shape[0]):
+    #             for j in range(img.shape[0]):
+    #                 img[i, j] = 1 / (1 + np.exp(-img[i, j]))
+    #         all_images.append(img)
+    #     return all_images
 
     def relu(self, input):
         all_elements = []
@@ -56,7 +76,7 @@ class CNN:
             el = element.copy()
             el[el < 0] = 0
             all_elements.append(el)
-        return all_elements
+        return np.array(all_elements)
 
     # def relu_deriv(self, input):
     #     all_elements = []
@@ -65,23 +85,6 @@ class CNN:
     #         element[element > 0] = 1
     #         all_elements.append(element)
     #     return all_elements
-    #
-    # def tanh(self, input):
-    #     all_elements = []
-    #     for element in input:
-    #         all_elements.append(np.tanh(element))
-    #         print(np.tanh(element))
-    #     return np.array(all_elements)
-    #
-    # def tahn_deriv(self, input):
-    #     all_elements = []
-    #     for element in input:
-    #         new_img = np.empty(shape=element.shape)
-    #         for i in range(element.shape[0]):
-    #             for j in range(element.shape[1]):
-    #                 new_img[i, j] = 1 - np.tanh(element[i, j]) ** 2
-    #         all_elements.append(new_img)
-    #     return np.array(all_elements)
 
     def convolution(self, input, filters):
         target_size = input[0].shape[0] - self.filters_size + 1
@@ -94,7 +97,7 @@ class CNN:
                     for j in range(target_size):
                         matrix = image[i:i + self.filters_size, j:j + self.filters_size]
                         filtered_input[i, j] = np.dot(np.array(matrix).reshape(self.filters_size ** 2),
-                                                 np.array(filter).reshape(self.filters_size ** 2))
+                                                 np.array(filter).reshape(self.filters_size ** 2)) + self.bias
                 container.append(filtered_input)
         return np.array(container)
 
@@ -121,13 +124,63 @@ class CNN:
             new_outputs.append(max_pools)
         return np.array(new_outputs)
 
-    def predict(self, input):
+    def layers(self, input):
         output = self.convolution([input], [self.kernel_a, self.kernel_b, self.kernel_c, self.kernel_d])
+        output = self.relu(output)
         output = self.max_pooling(self.return_pools(output))
-        output = self.convolution(output, [self.weights])
+        output = self.convolution(output, [self.kernel_a, self.kernel_b, self.kernel_c, self.kernel_d])
+        output = self.relu(output)
         output = self.max_pooling(self.return_pools(output))
-        output = self.sigmoid(output)
+
+        fcc_1 = FCC(output.shape[0]**2, 100)
+        output = fcc_1.forward_prop(output)
+
+        fcc_2 = FCC(output.shape[0]**2, 50)
+        output = fcc_2.forward_prop(output)
+
+        fcc_3 = FCC(output.shape[0] ** 2, 10)
+        output = fcc_3.forward_prop(output)
         return output
 
+    def predict(self, input):
+        output_0 = self.layers(input, 0)
+        output_9 = self.layers(input, 9)
+
+        errors = np.array([100, 100 ,100 ,100 ,100 ,100 ,100, 100, 100 ,100])
+
+        output_0 = np.sum(output_0)/len(output_0)
+        output_9 = np.sum(output_9) / len(output_9)
+
+        errors[0] = np.abs(np.sum(self.templates[0]) - np.sum(output_0))
+        errors[9] = np.abs(np.sum(self.templates[9]) - np.sum(output_9))
+
+        print(f'Error for 0 = {errors[0]}, Error for 9 = {errors[9]}')
+
+        min_value = errors[0]
+        index = 0
+
+        for i in range(errors.shape[0]):
+            if errors[i] < min_value:
+                min_value = errors[i]
+                index = i
+
+        return index
+
     def train(self, dataset, digit):
-        pass
+        iteration = 0
+        for image in dataset:
+            image = self.layers(image, digit)
+
+            cumulative_error = []
+
+            for img in image:
+                img[img == 0] = -1
+                # cumulative_sum.append(np.sum(img))
+                for i in range(img.shape[0] - 1):
+                    for j in range(img.shape[1] - 1):
+                        error = self.templates[digit][i, j] - img[i, j]
+                        self.weights[digit][i, j] += error * self.learning_rate
+                        cumulative_error.append(error)
+            iteration += 1
+            if iteration % 25 == 0:
+                print(f'Error: {np.round(np.abs(np.sum(cumulative_error)/len(cumulative_error)), 3)}')

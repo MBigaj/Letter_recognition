@@ -42,7 +42,7 @@ def load_images(folder):
 #     [-1, -1, -1]
 # ])
 
-img = Image.open('Training_Images/nine_6.jpg')
+img = Image.open('Training_Images/nine/nine_1.jpg')
 img = ImageOps.grayscale(img)
 img = img.resize(size=(28, 28))
 img = np.array(img)
@@ -51,12 +51,29 @@ img = img.astype(float)
 kernel = 3
 stride = 2
 
-network = CNN(kernel, stride, 0.1)
-prediction = network.predict(img)
+network = CNN(kernel, stride, 0.5)
 
-# images = load_images('Training_Images')
+images_of_nine = load_images('Training_Images/nine')
+images_of_zero = load_images('Training_images/zero')
 
-print(prediction)
-plot_all(prediction)
+images_of_nine = [el / 255.0 for el in images_of_nine]
+images_of_zero = [el / 255.0 for el in images_of_zero]
 
-# network.train(images, 9)
+
+# network.train(images_of_zero, 0)
+# print()
+# network.train(images_of_nine, 9)
+
+img /= 255.0
+
+# prediction = network.layers(img, 0)
+
+# img = img.flatten('C')
+#
+# weights = np.random.rand(28**2, 100) - 0.5
+# bias = np.random.rand(1, 100) - 0.5
+# output = np.dot(img, weights) + bias
+# output = np.array(output)
+# print(output.shape)
+
+network.layers(img)
