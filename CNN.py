@@ -2,63 +2,58 @@ import numpy as np
 from plotting_func import plot_image, plot_all
 from Base_class import Network
 from FCC_layer import FCC
+from Convolution_layer import Convolution
+import os
+
+from Activation_funcs import relu, mse, mse_deriv, softmax
 
 # Convolutional Neural Network structure
 
 class CNN(Network):
-    def __init__(self):
-        pass
-        # self.templates = np.array([
-        #     [[1, 1, 1, 1],
-        #     [1, -1, -1, 1],
-        #     [1, -1, -1, 1],
-        #     [1, 1, 1, 1]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0],
-        #      [1, 1, 1, 0]],
-        #
-        #     [[1, 1, 1, -1],
-        #      [1, 1, 1, -1],
-        #      [-1, -1, 1, -1],
-        #      [1, 1, 1, -1]],
+    def __init__(self, filters_size, stride, learning_rate):
+        # self.kernel_a = np.array([
+        #     [-1, 2, -1],
+        #     [-1, 2, -1],
+        #     [-1, 2, -1]
         # ])
+        #
+        # self.kernel_b = np.array([
+        #     [-1, -1, 2],
+        #     [-1, 2, -1],
+        #     [2, -1, -1]
+        # ])
+        #
+        # self.kernel_c = np.array([
+        #     [2, -1, -1],
+        #     [-1, 2, -1],
+        #     [-1, -1, 2]
+        # ])
+        #
+        # self.kernel_d = np.array([
+        #     [-1, -1, -1],
+        #     [-1, 8, -1],
+        #     [-1, -1, -1]
+        # ])
+
+        self.filters_size = filters_size
+        self.stride = stride
+        self.learning_rate = learning_rate
+        self.bias = np.random.rand()
+        self.conv_1 = Convolution(4)
+        self.conv_2 = Convolution(4)
+        self.fcc_1 = FCC(256, 100)
+        self.fcc_2 = FCC(100, 50)
+        self.fcc_3 = FCC(50, 10)
+
+    def flatten(self, input):
+        output = np.array([])
+
+        for image in input:
+            image = image.flatten('C')
+            output = np.concatenate((output, image))
+        output = output.reshape(1, output.shape[0])
+
+        return output
 
     # def sigmoid(self, input):
     #     all_images = []
@@ -70,14 +65,6 @@ class CNN(Network):
     #         all_images.append(img)
     #     return all_images
 
-    def relu(self, input):
-        all_elements = []
-        for element in input:
-            el = element.copy()
-            el[el < 0] = 0
-            all_elements.append(el)
-        return np.array(all_elements)
-
     # def relu_deriv(self, input):
     #     all_elements = []
     #     for element in input:
@@ -86,20 +73,20 @@ class CNN(Network):
     #         all_elements.append(element)
     #     return all_elements
 
-    def convolution(self, input, filters):
-        target_size = input[0].shape[0] - self.filters_size + 1
-        container = []
-
-        for image in input:
-            for filter in filters:
-                filtered_input = np.empty(shape=(target_size, target_size), dtype=int)
-                for i in range(target_size):
-                    for j in range(target_size):
-                        matrix = image[i:i + self.filters_size, j:j + self.filters_size]
-                        filtered_input[i, j] = np.dot(np.array(matrix).reshape(self.filters_size ** 2),
-                                                 np.array(filter).reshape(self.filters_size ** 2)) + self.bias
-                container.append(filtered_input)
-        return np.array(container)
+    # def convolution(self, input, filters):
+    #     target_size = input[0].shape[0] - self.filters_size + 1
+    #     container = []
+    #
+    #     for image in input:
+    #         for filter in filters:
+    #             filtered_input = np.empty(shape=(target_size, target_size), dtype=int)
+    #             for i in range(target_size):
+    #                 for j in range(target_size):
+    #                     matrix = image[i:i + self.filters_size, j:j + self.filters_size]
+    #                     filtered_input[i, j] = np.dot(np.array(matrix).reshape(self.filters_size ** 2),
+    #                                              np.array(filter).reshape(self.filters_size ** 2)) + self.bias
+    #             container.append(filtered_input)
+    #     return np.array(container)
 
     def return_pools(self, input):
         all_pools = []
@@ -124,63 +111,42 @@ class CNN(Network):
             new_outputs.append(max_pools)
         return np.array(new_outputs)
 
+        # APPLY RANDOM WEIGHTS TO CONVOLUTION and add BACK PROP to convolution
     def layers(self, input):
-        output = self.convolution([input], [self.kernel_a, self.kernel_b, self.kernel_c, self.kernel_d])
-        output = self.relu(output)
+        output = self.conv_1.forward_prop([input])
+        output = relu(output)
         output = self.max_pooling(self.return_pools(output))
-        output = self.convolution(output, [self.kernel_a, self.kernel_b, self.kernel_c, self.kernel_d])
-        output = self.relu(output)
+        output = self.conv_2.forward_prop(output)
+        output = relu(output)
         output = self.max_pooling(self.return_pools(output))
-
-        fcc_1 = FCC(output.shape[0]**2, 100)
-        output = fcc_1.forward_prop(output)
-
-        fcc_2 = FCC(output.shape[0]**2, 50)
-        output = fcc_2.forward_prop(output)
-
-        fcc_3 = FCC(output.shape[0] ** 2, 10)
-        output = fcc_3.forward_prop(output)
+        output = self.flatten(output)
+        output = softmax(output)
+        output = self.fcc_1.forward_prop(output)
+        output = self.fcc_2.forward_prop(output)
+        output = self.fcc_3.forward_prop(output)
         return output
 
     def predict(self, input):
-        output_0 = self.layers(input, 0)
-        output_9 = self.layers(input, 9)
+        output = self.layers(input)
+        return output
 
-        errors = np.array([100, 100 ,100 ,100 ,100 ,100 ,100, 100, 100 ,100])
+    def train(self, dataset, templates, epochs):
+        data_size = len(dataset)
 
-        output_0 = np.sum(output_0)/len(output_0)
-        output_9 = np.sum(output_9) / len(output_9)
+        for i in range(epochs):
+            err = 0
+            for j in range(data_size):
+                output = dataset[j]
+                output = self.layers(output)
 
-        errors[0] = np.abs(np.sum(self.templates[0]) - np.sum(output_0))
-        errors[9] = np.abs(np.sum(self.templates[9]) - np.sum(output_9))
+                err += mse(output, templates[j])
 
-        print(f'Error for 0 = {errors[0]}, Error for 9 = {errors[9]}')
-
-        min_value = errors[0]
-        index = 0
-
-        for i in range(errors.shape[0]):
-            if errors[i] < min_value:
-                min_value = errors[i]
-                index = i
-
-        return index
-
-    def train(self, dataset, digit):
-        iteration = 0
-        for image in dataset:
-            image = self.layers(image, digit)
-
-            cumulative_error = []
-
-            for img in image:
-                img[img == 0] = -1
-                # cumulative_sum.append(np.sum(img))
-                for i in range(img.shape[0] - 1):
-                    for j in range(img.shape[1] - 1):
-                        error = self.templates[digit][i, j] - img[i, j]
-                        self.weights[digit][i, j] += error * self.learning_rate
-                        cumulative_error.append(error)
-            iteration += 1
-            if iteration % 25 == 0:
-                print(f'Error: {np.round(np.abs(np.sum(cumulative_error)/len(cumulative_error)), 3)}')
+                error = mse_deriv(output, templates[j])
+                error = self.fcc_3.backward_prop(error, self.learning_rate)
+                error = self.fcc_2.backward_prop(error, self.learning_rate)
+                error = self.fcc_1.backward_prop(error, self.learning_rate)
+                # error = np.mean(error)
+                # error = self.conv_1.backward_prop(error, self.learning_rate)
+                # error = self.conv_2.backward_prop(error, self.learning_rate)
+            err /= data_size
+            print(f'Epoch: {i+1}/{epochs} - Error: {err}')
