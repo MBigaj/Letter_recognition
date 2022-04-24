@@ -1,17 +1,19 @@
 import numpy as np
 from Base_class import Network
+import os
 
 class Convolution(Network):
     def __init__(self, filter_amount):
         self.weights = []
 
         for x in range(filter_amount):
-            self.weights.append(np.random.rand(3, 3))
+            self.weights.append(np.random.rand(3, 3) - 0.5)
 
         self.weights = np.array(self.weights)
-        self.bias = np.random.rand()
+        self.bias = np.random.rand() - 0.5
 
     def forward_prop(self, input):
+        self.input = np.array(input)
         weights_size = self.weights[0].shape[0]
         target_size = input[0].shape[1] - weights_size + 1
         container = []
@@ -28,6 +30,10 @@ class Convolution(Network):
         return np.array(container)
 
     def backward_prop(self, output_error, learning_rate):
+        output_error = output_error.reshape(self.input.shape)
+        print(output_error)
+        os.system('pause')
+
         cumulative_input_error = 0
         for weight in self.weights:
             input_error = 0

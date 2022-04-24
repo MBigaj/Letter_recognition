@@ -40,20 +40,4 @@ img = np.array(img)
 img = img.astype(float)
 img /= 255
 
-img2 = Image.open('digit_2.jpg')
-img2 = ImageOps.grayscale(img2)
-img2 = img2.resize(size=(28, 28))
-img2= np.array(img2)
-img2 = img2.astype(float)
-img2 /= 255
-
-img3 = Image.open('digit_3.jpg')
-img3 = ImageOps.grayscale(img3)
-img3 = img3.resize(size=(28, 28))
-img3 = np.array(img3)
-img3 = img3.astype(float)
-img3 /= 255
-
-# print(network.predict(img))
-# print(network.predict(img2))
-# print(network.predict(img3))
+print(network.predict(img))

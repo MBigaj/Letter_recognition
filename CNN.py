@@ -5,40 +5,16 @@ from FCC_layer import FCC
 from Convolution_layer import Convolution
 import os
 
-from Activation_funcs import relu, mse, mse_deriv, softmax
+from Activation_funcs import relu, relu_deriv, mse, mse_deriv, softmax
 
 # Convolutional Neural Network structure
 
 class CNN(Network):
     def __init__(self, filters_size, stride, learning_rate):
-        # self.kernel_a = np.array([
-        #     [-1, 2, -1],
-        #     [-1, 2, -1],
-        #     [-1, 2, -1]
-        # ])
-        #
-        # self.kernel_b = np.array([
-        #     [-1, -1, 2],
-        #     [-1, 2, -1],
-        #     [2, -1, -1]
-        # ])
-        #
-        # self.kernel_c = np.array([
-        #     [2, -1, -1],
-        #     [-1, 2, -1],
-        #     [-1, -1, 2]
-        # ])
-        #
-        # self.kernel_d = np.array([
-        #     [-1, -1, -1],
-        #     [-1, 8, -1],
-        #     [-1, -1, -1]
-        # ])
-
         self.filters_size = filters_size
         self.stride = stride
         self.learning_rate = learning_rate
-        self.bias = np.random.rand()
+        self.bias = np.random.rand() - 0.5
         self.conv_1 = Convolution(4)
         self.conv_2 = Convolution(4)
         self.fcc_1 = FCC(256, 100)
@@ -64,14 +40,6 @@ class CNN(Network):
     #                 img[i, j] = 1 / (1 + np.exp(-img[i, j]))
     #         all_images.append(img)
     #     return all_images
-
-    # def relu_deriv(self, input):
-    #     all_elements = []
-    #     for element in input:
-    #         element[element <= 0] = 0
-    #         element[element > 0] = 1
-    #         all_elements.append(element)
-    #     return all_elements
 
     # def convolution(self, input, filters):
     #     target_size = input[0].shape[0] - self.filters_size + 1
@@ -120,10 +88,10 @@ class CNN(Network):
         output = relu(output)
         output = self.max_pooling(self.return_pools(output))
         output = self.flatten(output)
-        output = softmax(output)
         output = self.fcc_1.forward_prop(output)
         output = self.fcc_2.forward_prop(output)
         output = self.fcc_3.forward_prop(output)
+        output = softmax(output[0])
         return output
 
     def predict(self, input):
@@ -142,11 +110,12 @@ class CNN(Network):
                 err += mse(output, templates[j])
 
                 error = mse_deriv(output, templates[j])
+                error = np.array(error).reshape((1, 10))
                 error = self.fcc_3.backward_prop(error, self.learning_rate)
                 error = self.fcc_2.backward_prop(error, self.learning_rate)
                 error = self.fcc_1.backward_prop(error, self.learning_rate)
-                # error = np.mean(error)
-                # error = self.conv_1.backward_prop(error, self.learning_rate)
+                error = relu_deriv(error)
                 # error = self.conv_2.backward_prop(error, self.learning_rate)
+                # error = self.conv_1.backward_prop(error, self.learning_rate)
             err /= data_size
             print(f'Epoch: {i+1}/{epochs} - Error: {err}')

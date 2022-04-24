@@ -22,3 +22,9 @@ def relu(input):
         el[el < 0] = 0
         all_elements.append(el)
     return np.array(all_elements)
+
+
+def relu_deriv(input):
+    input[input <= 0] = 0
+    input[input > 0] = 1
+    return input
